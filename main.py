@@ -5,6 +5,7 @@ import univariate_analysis
 import bivariate_analysis
 import numpy as np
 import warnings
+import requests
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -86,50 +87,101 @@ def load_sample_data():
         return None
 
 def load_data():
-    """Handle data loading from file upload or sample dataset"""
+    """Handle data loading from file upload, URL, API, or sample dataset"""
     st.markdown('<div class="upload-section">', unsafe_allow_html=True)
     
-    # File uploader
-    uploaded_file = st.file_uploader(
-        "📁 Choose a CSV file", 
-        type="csv",
-        help="Upload your CSV file for analysis. Maximum file size: 200MB"
+    input_method = st.radio(
+        "Select Data Source",
+        ('Upload a File', 'From Website URL', 'From API', 'Use Sample Data'),
+        horizontal=True,
+        key='data_source'
     )
+
+    df = None
+
+    if input_method == 'Upload a File':
+        uploaded_file = st.file_uploader(
+            "📁 Choose a CSV or TSV file", 
+            type=['csv', 'tsv'],
+            help="Upload your CSV or TSV file for analysis. Maximum file size: 200MB"
+        )
+        if uploaded_file:
+            try:
+                file_details = {
+                    "filename": uploaded_file.name,
+                    "filetype": uploaded_file.type,
+                    "filesize": f"{uploaded_file.size / (1024*1024):.2f} MB"
+                }
+                st.success(f"✅ Loaded: {file_details['filename']} ({file_details['filesize']})")
+                
+                separator = ',' if uploaded_file.name.endswith('.csv') else '\t'
+                df = pd.read_csv(uploaded_file, sep=separator)
+            except UnicodeDecodeError:
+                st.error("❌ Encoding error. Try saving your file as UTF-8.")
+            except Exception as e:
+                st.error(f"❌ Error loading file: {e}")
     
-    # Option to use sample data
-    use_sample = st.checkbox("🔬 Use sample laptop dataset instead", value=False)
-    
-    if use_sample:
-        st.info("💡 **Sample Dataset**: Laptop specifications and prices for demonstration")
-    
+    elif input_method == 'From Website URL':
+        url = st.text_input("Enter URL to fetch table data from:", placeholder="e.g., https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)")
+        if url:
+            try:
+                with st.spinner('Fetching tables from URL...'):
+                    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36'}
+                    response = requests.get(url, headers=headers, timeout=10)
+                    response.raise_for_status()
+                    tables = pd.read_html(response.text)
+                
+                if tables:
+                    st.success(f"✅ Found {len(tables)} table(s) on the page.")
+                    table_options = [f"Table {i+1} (Shape: {t.shape})" for i, t in enumerate(tables)]
+                    selected_table_index = st.selectbox("Select a table to analyze:", range(len(tables)), format_func=lambda i: table_options[i])
+                    df = tables[selected_table_index]
+                else:
+                    st.warning("⚠️ No tables found on the provided URL.")
+            except requests.exceptions.RequestException as e:
+                st.error(f"❌ Could not retrieve URL: {e}")
+            except Exception as e:
+                st.error(f"❌ Error parsing tables from URL: {e}")
+
+    elif input_method == 'From API':
+        api_url = st.text_input("Enter the API endpoint URL:", placeholder="e.g., https://api.publicapis.org/entries")
+        if st.button("Fetch Data from API") and api_url:
+            try:
+                with st.spinner('Fetching data from API...'):
+                    response = requests.get(api_url, timeout=10)
+                    response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+                    data = response.json()
+                    
+                    if isinstance(data, list):
+                        df = pd.DataFrame(data)
+                    elif isinstance(data, dict):
+                        # Attempt to find a list of records within the JSON response
+                        list_key = next((key for key, value in data.items() if isinstance(value, list)), None)
+                        if list_key:
+                            st.info(f"Found a list of records under the key: '{list_key}'")
+                            df = pd.json_normalize(data, record_path=list_key)
+                        else:
+                            df = pd.json_normalize(data)
+                    else:
+                        st.error("❌ The API did not return a standard JSON list or dictionary format.")
+                    
+                    if df is not None:
+                        st.success("✅ Successfully loaded data from API.")
+
+            except requests.exceptions.RequestException as e:
+                st.error(f"❌ Could not retrieve data from API: {e}")
+            except ValueError:  # Catches JSON decoding errors
+                st.error("❌ Failed to decode JSON from the API response. Please check the URL and API documentation.")
+            except Exception as e:
+                st.error(f"❌ An unexpected error occurred: {e}")
+
+    elif input_method == 'Use Sample Data':
+        st.info("💡 **Sample Dataset**: Laptop specifications and prices for demonstration. Loading...")
+        df = load_sample_data()
+
     st.markdown('</div>', unsafe_allow_html=True)
-    
-    if uploaded_file is not None:
-        try:
-            # Show file details
-            file_details = {
-                "filename": uploaded_file.name,
-                "filetype": uploaded_file.type,
-                "filesize": f"{uploaded_file.size / 1024:.2f} KB"
-            }
-            st.success(f"✅ Loaded: {file_details['filename']} ({file_details['filesize']})")
-            
-            df = pd.read_csv(uploaded_file)
-            return df
-        except UnicodeDecodeError:
-            st.error("❌ Encoding error. Try saving your CSV as UTF-8 encoding.")
-            return None
-        except pd.errors.EmptyDataError:
-            st.error("❌ The uploaded file is empty.")
-            return None
-        except Exception as e:
-            st.error(f"❌ Error loading file: {e}")
-            return None
-    elif use_sample:
-        st.info("📊 Loading sample laptop dataset...")
-        return load_sample_data()
-    else:
-        return None
+    return df
+
 
 def display_dataset_metrics(df):
     """Display key dataset metrics in an attractive format"""
@@ -198,7 +250,7 @@ if df is not None and not df.empty:
             overview_instance.display_overview()
         except Exception as e:
             st.error(f"❌ Error in Overview analysis: {str(e)}")
-        
+            
     elif analysis_type == "📊 Univariate Analysis":
         try:
             univariate = univariate_analysis.UnivariateAnalysis(df)
@@ -217,9 +269,9 @@ else:
     st.markdown('<div class="info-text">', unsafe_allow_html=True)
     
     if df is None:
-        st.info("👋 **Welcome to InsightForge!** Please upload a CSV file or use the sample dataset to begin analysis.")
+        st.info("👋 **Welcome to InsightForge!** Please select a data source to begin analysis.")
     else:
-        st.warning("⚠️ The uploaded dataset appears to be empty. Please check your file and try again.")
+        st.warning("⚠️ The loaded dataset appears to be empty. Please check your source and try again.")
     
     st.markdown("""
     ### 🎯 What can you do here?
@@ -241,14 +293,14 @@ else:
     - Category limiting for high-cardinality columns
     
     ### 🚀 Quick Start
-    1. **Upload your CSV** using the file uploader above
-    2. **Or try the sample dataset** by checking the checkbox
-    3. **Navigate** using the sidebar to explore different analysis types
-    4. **Interact** with the visualizations and adjust parameters as needed
+    1. **Choose a data source**: Upload a file, paste a URL, get data from an API, or use the sample data.
+    2. **Follow the on-screen instructions** to load your data.
+    3. **Navigate** using the sidebar to explore different analysis types.
+    4. **Interact** with the visualizations and adjust parameters as needed.
     
     ### 💡 Tips
-    - For large datasets, visualizations are automatically optimized
-    - Missing values are handled gracefully with warnings
-    - Use category limiting sliders for columns with many unique values
+    - For large datasets, visualizations are automatically optimized.
+    - Missing values are handled gracefully with warnings.
+    - Use category limiting sliders for columns with many unique values.
     """)
     st.markdown('</div>', unsafe_allow_html=True)
