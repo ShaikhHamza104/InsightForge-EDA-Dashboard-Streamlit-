@@ -14,38 +14,79 @@ Analyze datasets quickly with interactive Overview, Univariate, and Bivariate vi
 
 No installation required — start analyzing your data immediately in your browser!
 
-## ✨ Key Features
+## ✨ Features I Created
 
-🔍 **Multiple Data Sources**
-- 📁 **File Upload**: CSV and TSV files with drag-and-drop support
-- 🌐 **Web Scraping**: Extract tables directly from website URLs
-- 🔗 **API Integration**: Fetch data from REST APIs with JSON response handling
-- 🧪 **Sample Dataset**: Pre-loaded laptop specifications dataset for testing
+### 🔍 **Multiple Data Source Integration** ([main.py](main.py))
+- **📁 File Upload**: CSV and TSV support with automatic delimiter detection
+- **🌐 Web Scraping**: Extract HTML tables directly from website URLs using pandas
+- **🔗 API Integration**: Fetch and process JSON data from REST APIs with error handling
+- **🧪 Sample Dataset**: Pre-loaded laptop dataset for immediate testing
 
-📊 **Comprehensive Analysis**
-- **Overview**: Dataset summary, statistics, missing values, correlations
-- **Univariate**: Single variable analysis with interactive visualizations
-- **Bivariate**: Two-variable relationship analysis with smart categorization
+### 📊 **Comprehensive Overview Analysis** ([overview.py](overview.py))
+- **Dataset Metrics**: Real-time shape, memory usage, and missing value tracking
+- **Statistical Summary**: Automatic descriptive statistics for numerical columns
+- **Missing Value Analysis**: Visual charts and detailed breakdown of null values
+- **Data Type Distribution**: Pie charts and detailed column information
+- **Correlation Matrix**: Interactive heatmaps with customizable filtering
+- **Categorical Analysis**: Value counts and distribution visualizations
 
-🎨 **Interactive Visualizations**
-- Built with **Plotly** for rich, interactive charts
-- **Seaborn** and **Matplotlib** integration for statistical plots
-- Real-time parameter adjustment and filtering
+### 📈 **Interactive Univariate Analysis** ([univariate_analysis.py](univariate_analysis.py))
+- **Smart Column Detection**: Automatic separation of numerical and categorical data
+- **Multiple Plot Types**: 
+  - **Numerical**: Histogram, Boxplot, Lineplot, Scatterplot, Density plots
+  - **Categorical**: Countplot, Pie chart, Barplot with customizable row limits
+- **Null Value Handling**: Automatic filtering with user warnings
+- **Dynamic Binning**: Intelligent bin sizing for histograms
 
-⚡ **Performance Optimized**
-- Caching for faster data loading
-- Memory usage monitoring
-- Efficient handling of large datasets
+### 🔀 **Advanced Bivariate Analysis** ([bivariate_analysis.py](bivariate_analysis.py))
+- **Three Analysis Types**:
+  - **Numerical vs Numerical**: Scatter, Line, Box, Density, and Correlation heatmaps
+  - **Categorical vs Categorical**: Grouped bars and Cross-tabulation heatmaps
+  - **Numerical vs Categorical**: Box plots, Violin plots, and Mean comparison bars
+- **Interactive Plotly Charts**: Zoom, pan, and hover functionality
+- **Category Limiting**: Smart handling of high-cardinality columns
+- **Statistical Insights**: Correlation coefficients and distribution summaries
 
-## 🚀 Demo
+### 🧹 **Advanced Data Cleaning System** ([basic_data_clean.py](basic_data_clean.py))
+- **Missing Value Imputation**:
+  - **Numerical**: Mean, Median, Mode, Custom values, KNN imputation
+  - **Categorical**: Mode, Custom text, Advanced KNN with label encoding
+- **Column Management**: Interactive column dropping with multi-selection
+- **High Missing Value Detection**: Automatic identification and removal of >50% missing columns
+- **Before/After Comparison**: Side-by-side data quality comparison
+- **Advanced Imputation**: Optional fancyimpute integration for sophisticated missing value handling
 
-### 🌐 Online Demo (Recommended)
-**Access instantly:** [https://insightforge-eda-dashboard-streamlit-1.onrender.com/](https://insightforge-eda-dashboard-streamlit-1.onrender.com/)
-- No setup required
-- Try all features immediately
-- Perfect for quick data analysis
+### 🎨 **Modern UI/UX Design** ([main.py](main.py))
+- **Custom CSS Styling**: Professional color scheme and responsive design
+- **Tabbed Interface**: Organized data cleaning workflow
+- **Interactive Metrics**: Real-time dataset statistics display
+- **Error Handling**: Comprehensive error messages and user guidance
+- **Performance Optimization**: Data caching and memory monitoring
 
-### 💻 Local Development
+## 🚀 Technical Implementation
+
+### Architecture
+- **Modular Design**: Each analysis type in separate Python modules
+- **Class-Based Structure**: OOP approach for maintainable code
+- **Error Resilience**: Comprehensive exception handling throughout
+- **Memory Efficient**: Smart data sampling and caching strategies
+
+### Data Processing Pipeline
+1. **Data Loading**: Multiple source validation and preprocessing
+2. **Type Detection**: Automatic numerical/categorical classification
+3. **Quality Assessment**: Missing value and data type analysis
+4. **Interactive Analysis**: Real-time parameter adjustment
+5. **Visualization**: Dynamic chart generation with Plotly/Matplotlib
+
+### Key Technologies
+- **Frontend**: Streamlit with custom CSS
+- **Data Processing**: Pandas, NumPy
+- **Visualization**: Plotly (interactive), Matplotlib, Seaborn
+- **ML/Statistics**: Scikit-learn KNN imputation, Statistical analysis
+- **Web Integration**: Requests, BeautifulSoup for data fetching
+
+## 💻 Local Development
+
 ```bash
 git clone https://github.com/ShaikhHamza104/InsightForge-EDA-Dashboard-Streamlit-.git
 cd InsightForge-EDA-Dashboard-Streamlit-
@@ -53,238 +94,64 @@ pip install -r requirements.txt
 streamlit run main.py
 ```
 
-### Navigation
-Use the sidebar to switch between analysis types:
-- 📋 **Overview**: Dataset summary and insights
-- 📊 **Univariate Analysis**: Single variable exploration
-- 📈 **Bivariate Analysis**: Variable relationships
+## 🧪 Usage Examples
 
-## 💡 Usage Guide
-
-### Getting Started
-1. **Access the App**: Visit the [live demo](https://insightforge-eda-dashboard-streamlit-1.onrender.com/) or run locally
-2. **Select Data Source**: Choose from upload, URL, API, or sample dataset
-3. **Load Your Data**: Follow the on-screen instructions for your chosen method
-4. **Review Metrics**: Check the dataset overview metrics
-5. **Choose Analysis**: Use the sidebar to navigate between analysis types
-6. **Interact**: Customize visualizations with the available controls
-
-### Data Source Options
-
-#### 📁 File Upload
-- **Supported Formats**: CSV, TSV
-- **Max File Size**: 200MB
-- **Encoding**: UTF-8 recommended
-- **Features**: Automatic delimiter detection
-
-#### 🌐 Website URL
-- **Extract Tables**: Automatically finds and parses HTML tables
-- **Multiple Tables**: Select from available tables on the page
-- **Example**: Wikipedia tables, data repositories
-
-#### 🔗 API Integration
-- **JSON APIs**: Handles REST API responses
-- **Nested Data**: Automatically flattens complex JSON structures
-- **Timeout**: 10-second request timeout for reliability
-
-#### 🧪 Sample Dataset
-- **Laptop Specifications**: Pre-loaded dataset with 1000+ records
-- **16 Columns**: Mixed numerical and categorical data
-- **Perfect for Testing**: Demonstrates all dashboard features
-
-## 💡 Tips & Troubleshooting
-
-### Common Issues & Solutions
-
-#### 📁 File Upload Issues
-- **Encoding Errors**: Save your CSV as UTF-8 encoding
-- **Large Files**: Use the sample dataset feature for testing
-- **Format Problems**: Ensure proper CSV/TSV format with headers
-
-#### 🌐 Web Scraping Issues
-- **No Tables Found**: Check if the webpage contains HTML tables
-- **Access Denied**: Some websites block automated requests
-- **Timeout**: Website may be slow; try again later
-
-#### 🔗 API Integration Issues
-- **JSON Parse Error**: Ensure the API returns valid JSON
-- **Network Timeout**: Check your internet connection
-- **API Limits**: Some APIs have rate limiting
-
-#### 📊 Visualization Issues
-- **Large Categories**: Use the "Max categories" slider to limit display
-- **Missing Values**: Charts automatically exclude NaN values with warnings
-- **Performance**: For large datasets, use data sampling options
-
-#### 🧮 Analysis Issues
-- **Correlation NaNs**: Overview automatically handles NaN values in correlation matrix
-- **Empty Data**: Application gracefully handles empty or invalid datasets
-- **Mixed Types**: Automatic type detection works with most data formats
-
-### Performance Tips
-- **Large Datasets**: Use the row limiting features in bivariate analysis
-- **High Cardinality**: Limit categories using the slider controls
-- **Memory Usage**: Monitor memory metrics in the overview section
-- **Caching**: Sample data is cached for faster loading
-
-### Best Practices
-- **Data Quality**: Clean your data before analysis for best results
-- **Column Names**: Use descriptive column names for better insights
-- **Data Types**: Ensure proper data types are detected
-- **Backup Data**: Keep original data files as backup
-
-## 🚀 Deployment
-
-### Local Development
-```bash
-streamlit run main.py
+### Load Data from Multiple Sources
+```python
+# File upload with automatic delimiter detection
+# URL scraping with table selection
+# API integration with JSON processing
+# Sample dataset for immediate testing
 ```
 
-### Production Deployment
-
-#### 🌐 Live Demo (Current)
-The application is currently deployed at: [https://insightforge-eda-dashboard-streamlit-1.onrender.com/](https://insightforge-eda-dashboard-streamlit-1.onrender.com/)
-
-#### Render.com (Recommended)
-1. **Fork this repository**
-2. **Connect to Render**: Link your GitHub repository
-3. **Configure**: Select "Web Service" and use Python environment
-4. **Deploy**: Automatic deployment with GitHub integration
-5. **Custom Domain**: Optional custom domain configuration
-
-#### Heroku
-1. **Fork this repository**
-2. **Connect to Heroku**: Link your GitHub repository
-3. **Deploy**: Heroku will automatically use the included `Procfile`
-4. **Environment**: Uses the provided `requirements.txt`
-
-#### Streamlit Cloud
-1. **Connect Repository**: Link your GitHub account
-2. **Select Branch**: Deploy from main branch
-3. **Configure**: Use `main.py` as entry point
-4. **Deploy**: Automatic deployment with GitHub integration
-
-#### Docker (Advanced)
-```dockerfile
-FROM python:3.11-slim
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY . .
-EXPOSE 8501
-CMD ["streamlit", "run", "main.py"]
+### Perform Comprehensive Analysis
+```python
+# Overview: Dataset metrics and correlations
+# Univariate: Single variable distributions
+# Bivariate: Variable relationships
+# Cleaning: Missing value imputation
 ```
-
-## 🧪 Testing
-
-The project includes comprehensive testing:
-
-```bash
-# Run the test suite
-python test_main.py
-```
-
-**Test Coverage:**
-- ✅ Import validation
-- ✅ Data loading from all sources
-- ✅ Analysis module initialization
-- ✅ Edge case handling
-- ✅ Error handling
-- ✅ Performance metrics
-
-## 🤝 Contributing
-
-We welcome contributions! Here's how to get started:
-
-1. **Fork the Repository**
-2. **Create Feature Branch**: `git checkout -b feature/amazing-feature`
-3. **Make Changes**: Implement your feature or fix
-4. **Add Tests**: Ensure your changes work correctly
-5. **Commit Changes**: `git commit -m 'Add amazing feature'`
-6. **Push Branch**: `git push origin feature/amazing-feature`
-7. **Create Pull Request**: Submit your changes for review
-
-### Development Guidelines
-- Follow PEP 8 style guidelines
-- Add docstrings to new functions
-- Include error handling for new features
-- Test with different data types and sizes
-- Update documentation as needed
 
 ## 📋 Dependencies
 
-### Core Requirements
 ```txt
-streamlit>=1.49.1      # Web app framework
+# Core Libraries
 pandas>=2.3.2          # Data manipulation
-plotly>=5.24.1         # Interactive plotting
-seaborn>=0.13.2        # Statistical plotting
-matplotlib>=3.10.6     # Base plotting library
-numpy>=2.3.2           # Numerical computing
-requests>=2.32.5       # HTTP requests
-lxml>=4.9.0            # HTML/XML parsing
-html5lib>=1.1          # HTML parsing
+streamlit>=1.49.1       # Web framework
+plotly>=5.24.1          # Interactive charts
+matplotlib>=3.10.6      # Statistical plots
+seaborn>=0.13.2         # Statistical visualization
+numpy>=2.3.2            # Numerical computing
+
+# Data Processing
+scikit-learn            # ML algorithms
+requests>=2.32.5        # HTTP requests
+lxml>=4.9.0             # HTML parsing
+
+# Optional Advanced Features
+fancyimpute             # Advanced imputation
+knnimpute               # KNN imputation
 ```
 
-### Development Requirements
-```txt
-pytest                 # Testing framework
-black                  # Code formatting
-flake8                 # Code linting
-jupyter               # Notebook development
-```
+## 📞 Contact & Support
+
+**Created by**: [Shaikh Hamza](https://github.com/ShaikhHamza104)
+
+- **🌐 Live Demo**: [Try it here](https://insightforge-eda-dashboard-streamlit-1.onrender.com/)
+- **🐛 Issues**: Report bugs via GitHub Issues
+- **💡 Features**: Submit enhancement requests
+- **📧 Contact**: Reach out through GitHub
 
 ## 📄 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
-
-```
-MIT License
-
-Copyright (c) 2025 Shaikh Hamza
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
-
-## 🌟 Acknowledgments
-
-- **Streamlit Team** - For the amazing web app framework
-- **Plotly** - For interactive visualization capabilities
-- **Pandas Community** - For powerful data manipulation tools
-- **Open Source Community** - For inspiration and contributions
-
-## 📞 Support
-
-Having issues? Here's how to get help:
-
-- **🌐 Live Demo**: Try the [online version](https://insightforge-eda-dashboard-streamlit-1.onrender.com/) first
-- **📖 Documentation**: Check this README and inline help text
-- **🐛 Bug Reports**: Open an issue on GitHub
-- **💡 Feature Requests**: Submit enhancement ideas via GitHub issues
-- **📧 Contact**: Reach out to the maintainer through GitHub
+MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
 <div align="center">
 
-**Made with ❤️ by [Shaikh Hamza](https://github.com/ShaikhHamza104)**
+**🌐 [Try the Live Demo](https://insightforge-eda-dashboard-streamlit-1.onrender.com/)** | ⭐ **Star if helpful!** ⭐
 
-🌐 **[Try the Live Demo](https://insightforge-eda-dashboard-streamlit-1.onrender.com/)** | ⭐ **Star this repository if you found it helpful!** ⭐
+*Built with Python, Streamlit, and modern data science libraries*
 
 </div>
