@@ -1,22 +1,22 @@
 import warnings
 warnings.filterwarnings("ignore")
 
+from pathlib import Path
 import streamlit as st
 import pandas as pd
 
-# External analysis modules you already have
-import overview
+# External analysis modules (existing files at project root)
 import univariate_analysis
 import bivariate_analysis
-from basic_data_clean import BasicDataClean
 
-# Local components
+# Refactored components (modularized)
+from components.overview import Overview
+from components.cleaning import BasicDataClean
 from components.load_data import load_data
 from components.metrics import display_dataset_metrics
 from components.export_ui import display_export_interface
 from components.welcome import show_welcome
 from components.state import apply_cleaned_preference, ensure_cleaned_consistency
-from pathlib import Path
 
 
 # 1) Page setup MUST be first Streamlit call
@@ -30,8 +30,11 @@ st.set_page_config(
 
 # 2) Load CSS once
 def load_css(path: str = "components/styles.css"):
-    css = Path(path).read_text(encoding="utf-8")
-    st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+    try:
+        css = Path(path).read_text(encoding="utf-8")
+        st.markdown(f"<style>{css}</style>", unsafe_allow_html=True)
+    except Exception as e:
+        st.warning(f"Could not load CSS from {path}: {e}")
 
 load_css()
 
@@ -41,7 +44,7 @@ st.markdown('<h1 class="main-header">📊 InsightForge — EDA Dashboard</h1>', 
 st.markdown('<p style="text-align: center; font-size: 1.2rem; color: #666;">Analyze datasets quickly with interactive Overview, Univariate, and Bivariate visualizations</p>', unsafe_allow_html=True)
 
 
-# 4) Sidebar: app navigation + dataset toggle
+# 4) Sidebar: app navigation
 with st.sidebar:
     st.markdown('<h2 style="text-align: center; color: var(--primary);">📊 InsightForge</h2>', unsafe_allow_html=True)
 
@@ -108,8 +111,7 @@ if active_df is not None and not active_df.empty:
     if analysis_key == "overview":
         with st.spinner("Computing overview..."):
             try:
-                overview_instance = overview.Overview(active_df)
-                overview_instance.display_overview()
+                Overview(active_df).display_overview()
             except Exception as e:
                 st.error(f"❌ Error in Overview analysis: {e}")
                 st.exception(e)
