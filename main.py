@@ -7,6 +7,10 @@ import numpy as np
 import warnings
 import requests
 from basic_data_clean import BasicDataClean
+from data_export import DataExporter  
+import base64
+import json
+import io
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -75,6 +79,28 @@ st.markdown("""
         border-radius: 0.5rem;
         margin-top: 1rem;
     }
+    .export-section {
+        background-color: #F0F8FF;
+        padding: 1.5rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+        border: 2px solid #1E88E5;
+    }
+    .export-button {
+        background-color: #4CAF50;
+        color: white;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin: 4px 2px;
+        font-size: 14px;
+    }
+    .export-button:hover {
+        background-color: #45a049;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -86,6 +112,123 @@ def load_sample_data():
     except Exception as e:
         st.error(f"Error loading sample data: {str(e)}")
         return None
+
+def get_download_link(data, filename, file_type):
+    """Generate download link for any file type"""
+    if isinstance(data, str):
+        data = data.encode()
+    
+    b64 = base64.b64encode(data).decode()
+    
+    mime_types = {
+        'csv': 'text/csv',
+        'tsv': 'text/tab-separated-values',
+        'json': 'application/json',
+        'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    }
+    
+    mime_type = mime_types.get(file_type, 'application/octet-stream')
+    
+    return f'''
+    <a href="data:{mime_type};base64,{b64}" 
+       download="{filename}" 
+       class="export-button">
+        📥 Download {file_type.upper()}
+    </a>
+    '''
+
+def display_export_interface(df, data_type="cleaned"):
+    """Display export interface for cleaned data"""
+    st.markdown('<div class="export-section">', unsafe_allow_html=True)
+    st.subheader(f"📤 Export {data_type.title()} Data")
+    st.write("Choose your preferred format to download the data:")
+    
+    if df is None or df.empty:
+        st.warning("⚠️ No data available for export.")
+        st.markdown('</div>', unsafe_allow_html=True)
+        return
+    
+    exporter = DataExporter(df)
+    
+    # Create export options in columns
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        st.markdown("**📄 Text Formats**")
+        
+        # CSV Export
+        if st.button("📊 Export as CSV", key=f"csv_btn_{data_type}"):
+            csv_data = exporter.to_csv()
+            filename = f"{data_type}_data_{exporter.timestamp}.csv"
+            st.markdown(get_download_link(csv_data, filename, 'csv'), unsafe_allow_html=True)
+            st.success("✅ CSV file ready for download!")
+        
+        # TSV Export
+        if st.button("📋 Export as TSV", key=f"tsv_btn_{data_type}"):
+            tsv_data = exporter.to_tsv()
+            filename = f"{data_type}_data_{exporter.timestamp}.tsv"
+            st.markdown(get_download_link(tsv_data, filename, 'tsv'), unsafe_allow_html=True)
+            st.success("✅ TSV file ready for download!")
+    
+    with col2:
+        st.markdown("**🗂️ Structured Formats**")
+        
+        # JSON Export
+        if st.button("🔗 Export as JSON", key=f"json_btn_{data_type}"):
+            json_data = exporter.to_json()
+            filename = f"{data_type}_data_{exporter.timestamp}.json"
+            st.markdown(get_download_link(json_data, filename, 'json'), unsafe_allow_html=True)
+            st.success("✅ JSON file ready for download!")
+        
+        # Excel Export
+        if st.button("📈 Export as Excel", key=f"excel_btn_{data_type}"):
+            try:
+                excel_data = exporter.to_excel()
+                filename = f"{data_type}_data_{exporter.timestamp}.xlsx"
+                st.markdown(get_download_link(excel_data, filename, 'xlsx'), unsafe_allow_html=True)
+                st.success("✅ Excel file ready for download!")
+            except Exception as e:
+                st.error(f"❌ Error creating Excel file: {str(e)}")
+    
+    with col3:
+        st.markdown("**📊 Data Summary**")
+        st.metric("📈 Total Rows", len(df))
+        st.metric("📊 Total Columns", len(df.columns))
+        memory_usage = df.memory_usage(deep=True).sum() / 1024
+        st.metric("💾 Memory", f"{memory_usage:.1f} KB")
+    
+    # Custom export options
+    with st.expander("🔧 Advanced Export Options"):
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            st.markdown("**CSV Custom Options**")
+            include_index = st.checkbox("Include Index", value=False, key=f"index_{data_type}")
+            separator = st.selectbox("Separator", [',', ';', '|', '\t'], index=0, key=f"sep_{data_type}")
+            
+            if st.button("📊 Export Custom CSV", key=f"custom_csv_{data_type}"):
+                csv_data = exporter.to_csv(index=include_index, separator=separator)
+                filename = f"{data_type}_data_custom_{exporter.timestamp}.csv"
+                st.markdown(get_download_link(csv_data, filename, 'csv'), unsafe_allow_html=True)
+                st.success("✅ Custom CSV file ready!")
+        
+        with col2:
+            st.markdown("**JSON Custom Options**")
+            json_orient = st.selectbox("JSON Orientation", 
+                                     ['records', 'index', 'values', 'columns'], 
+                                     index=0, key=f"json_orient_{data_type}")
+            
+            if st.button("🔗 Export Custom JSON", key=f"custom_json_{data_type}"):
+                json_data = exporter.to_json(orient=json_orient)
+                filename = f"{data_type}_data_custom_{exporter.timestamp}.json"
+                st.markdown(get_download_link(json_data, filename, 'json'), unsafe_allow_html=True)
+                st.success("✅ Custom JSON file ready!")
+    
+    # Data Preview
+    with st.expander("👀 Preview Data (First 5 rows)"):
+        st.dataframe(df.head(), use_container_width=True)
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def load_data():
     """Handle data loading from file upload, URL, API, or sample dataset"""
@@ -212,7 +355,7 @@ with st.sidebar:
     
     analysis_type = st.radio(
         "🎯 Select Analysis Type",
-        ("📋 Overview", "📊 Univariate Analysis", "📈 Bivariate Analysis", "🧹 Data Cleaning"),
+        ("📋 Overview", "📊 Univariate Analysis", "📈 Bivariate Analysis", "🧹 Data Cleaning", "📤 Export Data"),
         index=0,
         help="Choose the type of analysis you want to perform"
     )
@@ -227,6 +370,7 @@ with st.sidebar:
     - **📊 Univariate**: Single variable analysis
     - **📈 Bivariate**: Relationship analysis
     - **🧹 Data Cleaning**: Handle missing values, outliers
+    - **📤 Export Data**: Multiple format downloads
     - **🎨 Interactive**: Plotly-powered visualizations
     - **⚡ Fast**: Optimized for performance
     """)
@@ -267,12 +411,38 @@ if df is not None and not df.empty:
         except Exception as e:
             st.error(f"❌ Error in Bivariate analysis: {str(e)}")
 
+    elif analysis_type == "📤 Export Data":
+        try:
+            # Check if cleaned data is available
+            if 'cleaned_df' in st.session_state:
+                cleaned_data = st.session_state['cleaned_df']
+                
+                # Tabs for original and cleaned data export
+                tab1, tab2 = st.tabs(["📋 Original Data", "✨ Cleaned Data"])
+                
+                with tab1:
+                    st.subheader("📋 Export Original Data")
+                    display_export_interface(df, "original")
+                
+                with tab2:
+                    st.subheader("✨ Export Cleaned Data")
+                    display_export_interface(cleaned_data, "cleaned")
+            else:
+                # Only original data available
+                st.subheader("📋 Export Current Data")
+                display_export_interface(df, "current")
+                
+                st.info("💡 **Tip**: Clean your data first to have both original and cleaned export options!")
+                
+        except Exception as e:
+            st.error(f"❌ Error in Export functionality: {str(e)}")
+
     elif analysis_type == "🧹 Data Cleaning":
         try:
             cleaner = BasicDataClean(df)
 
             # Add data cleaning options in tabs
-            tab1, tab2, tab3 = st.tabs(["🧹 Missing Values", "🗑️ Drop Columns", "📊 High Missing Columns"])
+            tab1, tab2, tab3, tab4 = st.tabs(["🧹 Missing Values", "🗑️ Drop Columns", "📊 High Missing Columns", "📤 Export"])
 
             with tab1:
                 cleaned_df = cleaner.display_cleaning_interface()
@@ -286,6 +456,13 @@ if df is not None and not df.empty:
                 st.subheader("📊 Handle High Missing Columns")
                 st.write("Deal with columns that have more than 50% missing values.")
                 cleaner.drop_high_missing_columns()
+
+            with tab4:
+                st.subheader("📤 Export Cleaned Data")
+                if hasattr(cleaner, 'df') and cleaner.df is not None:
+                    display_export_interface(cleaner.df, "cleaned")
+                else:
+                    st.warning("⚠️ No cleaned data available. Please clean the data first.")
 
             # Option to use cleaned data for further analysis
             if hasattr(cleaner, 'df') and cleaner.df is not None:
@@ -353,17 +530,25 @@ else:
     - Support for both numerical and categorical data
     - Advanced imputation using KNN and fancyimpute
     
+    **📤 Export Data**
+    - Export in multiple formats: CSV, TSV, JSON, Excel
+    - Custom export options with different separators
+    - Export both original and cleaned data
+    - Advanced options for JSON orientation and CSV formatting
+    
     ### 🚀 Quick Start
     1. **Choose a data source**: Upload a file, paste a URL, get data from an API, or use the sample data.
     2. **Follow the on-screen instructions** to load your data.
     3. **Navigate** using the sidebar to explore different analysis types.
-    4. **Interact** with the visualizations and adjust parameters as needed.
+    4. **Clean your data** if needed using the Data Cleaning section.
+    5. **Export your results** in your preferred format.
     
     ### 💡 Tips
     - For large datasets, visualizations are automatically optimized.
     - Missing values are handled gracefully with warnings.
     - Use category limiting sliders for columns with many unique values.
     - Clean your data first before performing analysis for better results.
+    - Export functionality supports both original and cleaned data.
     """)
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -380,6 +565,6 @@ if 'cleaned_df' in st.session_state:
             del st.session_state['cleaned_df']
         st.rerun()
 
-    # Use cleaned data for analysis if not in cleaning mode
-    if analysis_type != "🧹 Data Cleaning":
+    # Use cleaned data for analysis if not in cleaning or export mode
+    if analysis_type not in ["🧹 Data Cleaning", "📤 Export Data"]:
         df = cleaned_data
