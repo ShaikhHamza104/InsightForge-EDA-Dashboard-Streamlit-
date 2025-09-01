@@ -12,17 +12,14 @@ class BivariateAnalysis:
             self.numerical_columns = []
             self.categorical_columns = []
             return
-            
-        # Safely identify column types
+
         self.numerical_columns = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
         self.categorical_columns = df.select_dtypes(include=['object', 'category']).columns.tolist()
         
-        # Ensure categorical columns contain string values
-        for col in self.categorical_columns[:]:  # Use slice copy to avoid modification during iteration
+        for col in self.categorical_columns[:]:
             try:
                 self.df[col] = self.df[col].fillna('Missing').astype(str)
             except Exception:
-                # If conversion fails, remove from categorical columns
                 self.categorical_columns.remove(col)
 
     def column_vs_column_display(self):
@@ -231,10 +228,10 @@ class BivariateAnalysis:
             if unique_x > 15 or unique_y > 15:
                 st.warning(f"⚠️ High cardinality detected: {x_col} has {unique_x} and {y_col} has {unique_y} categories. " 
                           f"Consider limiting categories for better visualization.")
-            
-            max_categories = st.slider("📊 Max categories to display per variable", 
-                                     5, 30, 
-                                     min(15, max(unique_x, unique_y)),
+            max_cat_default = min(15, max(unique_x, unique_y))
+            max_categories = st.slider("📊 Max categories to display per variable",
+                                     min_value=5,
+                                     max_value=30,
                                      help="Reduce to focus on most frequent categories")
         
         plot_options = {
@@ -327,12 +324,12 @@ class BivariateAnalysis:
             if unique_cats > 15:
                 st.warning(f"⚠️ High cardinality detected: {cat_col} has {unique_cats} categories. " 
                           f"Consider limiting categories for better visualization.")
-            
-            max_categories = st.slider("📊 Max categories to display", 
-                                     5, 30, 
+
+            max_categories = st.slider("📊 Max categories to display",
+                                     5, 30,
                                      min(15, unique_cats),
                                      help="Focus on most frequent categories")
-            
+
             show_outliers = st.checkbox("🎯 Show outliers", value=True, help="Display outlier points in box/violin plots")
         
         plot_options = {

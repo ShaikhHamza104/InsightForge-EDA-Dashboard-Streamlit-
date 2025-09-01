@@ -6,6 +6,7 @@ import bivariate_analysis
 import numpy as np
 import warnings
 import requests
+from basic_data_clean import BasicDataClean
 
 # Suppress warnings for cleaner output
 warnings.filterwarnings('ignore')
@@ -211,7 +212,7 @@ with st.sidebar:
     
     analysis_type = st.radio(
         "🎯 Select Analysis Type",
-        ("📋 Overview", "📊 Univariate Analysis", "📈 Bivariate Analysis"),
+        ("📋 Overview", "📊 Univariate Analysis", "📈 Bivariate Analysis", "🧹 Data Cleaning"),
         index=0,
         help="Choose the type of analysis you want to perform"
     )
@@ -225,6 +226,7 @@ with st.sidebar:
     - **📋 Overview**: Dataset summary, statistics, correlations
     - **📊 Univariate**: Single variable analysis
     - **📈 Bivariate**: Relationship analysis
+    - **🧹 Data Cleaning**: Handle missing values, outliers
     - **🎨 Interactive**: Plotly-powered visualizations
     - **⚡ Fast**: Optimized for performance
     """)
@@ -264,6 +266,60 @@ if df is not None and not df.empty:
             bivariate.column_vs_column_display()
         except Exception as e:
             st.error(f"❌ Error in Bivariate analysis: {str(e)}")
+
+    elif analysis_type == "🧹 Data Cleaning":
+        try:
+            cleaner = BasicDataClean(df)
+
+            # Add data cleaning options in tabs
+            tab1, tab2, tab3 = st.tabs(["🧹 Missing Values", "🗑️ Drop Columns", "📊 High Missing Columns"])
+
+            with tab1:
+                cleaned_df = cleaner.display_cleaning_interface()
+
+            with tab2:
+                st.subheader("🗑️ Drop Columns")
+                st.write("Remove unwanted columns from your dataset.")
+                cleaner.drop_columns()
+
+            with tab3:
+                st.subheader("📊 Handle High Missing Columns")
+                st.write("Deal with columns that have more than 50% missing values.")
+                cleaner.drop_high_missing_columns()
+
+            # Option to use cleaned data for further analysis
+            if hasattr(cleaner, 'df') and cleaner.df is not None:
+                current_df = cleaner.df
+                if not current_df.equals(df):
+                    st.markdown("---")
+                    col1, col2 = st.columns([3, 1])
+                    with col1:
+                        st.info("💡 Your data has been modified. You can use the cleaned data for further analysis.")
+                    with col2:
+                        if st.button("📊 Use Cleaned Data", type="primary"):
+                            st.session_state['cleaned_df'] = current_df.copy()
+                            st.success("✅ Cleaned data is now available for analysis!")
+                            st.rerun()
+
+                    # Show comparison
+                    if st.checkbox("🔍 Show Before/After Comparison"):
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.subheader("📊 Original Data")
+                            st.write(f"Shape: {df.shape}")
+                            st.write(f"Missing values: {df.isnull().sum().sum()}")
+                            st.dataframe(df.head(), use_container_width=True)
+
+                        with col2:
+                            st.subheader("✨ Cleaned Data")
+                            st.write(f"Shape: {current_df.shape}")
+                            st.write(f"Missing values: {current_df.isnull().sum().sum()}")
+                            st.dataframe(current_df.head(), use_container_width=True)
+
+        except Exception as e:
+            st.error(f"❌ Error in Data Cleaning: {str(e)}")
+            st.exception(e)
+
 else:
     # Welcome screen with instructions
     st.markdown('<div class="info-text">', unsafe_allow_html=True)
@@ -292,6 +348,11 @@ else:
     - **Numerical vs Categorical**: Box plots, Violin plots, Mean comparison bars
     - Category limiting for high-cardinality columns
     
+    **🧹 Data Cleaning**
+    - Handle missing values with multiple imputation methods
+    - Support for both numerical and categorical data
+    - Advanced imputation using KNN and fancyimpute
+    
     ### 🚀 Quick Start
     1. **Choose a data source**: Upload a file, paste a URL, get data from an API, or use the sample data.
     2. **Follow the on-screen instructions** to load your data.
@@ -302,5 +363,23 @@ else:
     - For large datasets, visualizations are automatically optimized.
     - Missing values are handled gracefully with warnings.
     - Use category limiting sliders for columns with many unique values.
+    - Clean your data first before performing analysis for better results.
     """)
     st.markdown('</div>', unsafe_allow_html=True)
+
+# Check if we should use cleaned data
+if 'cleaned_df' in st.session_state:
+    cleaned_data = st.session_state['cleaned_df']
+
+    # Show notification about using cleaned data
+    st.info("ℹ️ Currently using cleaned data. Switch data source above to use original data.")
+
+    # Option to revert to original data
+    if st.button("🔄 Use Original Data"):
+        if 'cleaned_df' in st.session_state:
+            del st.session_state['cleaned_df']
+        st.rerun()
+
+    # Use cleaned data for analysis if not in cleaning mode
+    if analysis_type != "🧹 Data Cleaning":
+        df = cleaned_data
