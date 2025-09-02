@@ -107,14 +107,21 @@ def display_export_interface(df, data_type: str = "cleaned"):
             )
             lines = st.checkbox("JSON Lines (one record per line)", value=False, key=f"json_lines_{data_type}")
 
-            custom_json = exporter.to_json(orient=orient, lines=lines)
+            try:
+                # Try with both parameters first
+                custom_json = exporter.to_json(orient=orient, lines=lines)
+            except TypeError:
+                # If lines parameter is not supported, fall back to orient only
+                custom_json = exporter.to_json(orient=orient)
+                if lines:
+                    st.warning("⚠️ JSON Lines format not supported by DataExporter. Using standard JSON format.")
+            
             st.download_button(
                 "🔗 Download Custom JSON",
                 data=custom_json.encode("utf-8"),
                 file_name=f"{data_type}_data_custom_{exporter.timestamp}.json",
                 mime="application/json",
                 use_container_width=True,
-                key=f"dl_custom_json_{data_type}",
             )
 
     with st.expander("👀 Preview Data (First 5 rows)"):

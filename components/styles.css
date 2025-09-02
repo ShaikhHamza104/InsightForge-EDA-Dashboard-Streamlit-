@@ -1,110 +1,507 @@
-/* Theme variables */
-:root{
-  --primary: #1E88E5;
-  --primary-dark: #1565C0;
-  --accent: #0D47A1;
-  --info-bg: #E3F2FD;
-  --card-bg: #FFFFFF;
-  --muted: #F5F5F5;
-  --upload-bg: #F8F9FA;
-  --export-bg: #F0F8FF;
-  --success: #4CAF50;
-  --success-dark: #45a049;
+/* Import modern fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* CSS Variables for light and dark themes */
+:root {
+    /* Light theme colors */
+    --primary-color: #6366f1;
+    --primary-light: #818cf8;
+    --primary-dark: #4f46e5;
+    --secondary-color: #f59e0b;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --info-color: #3b82f6;
+    --background-color: #ffffff;
+    --surface-color: #f8fafc;
+    --sidebar-bg: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    --text-primary: #1e293b;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+    --border-color: #e2e8f0;
+    --card-bg: rgba(255, 255, 255, 0.8);
+    --hover-bg: rgba(99, 102, 241, 0.1);
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --radius-sm: 0.375rem;
+    --radius-md: 0.5rem;
+    --radius-lg: 0.75rem;
 }
 
-/* Headings */
-.main-header{
-  font-size: 2.5rem;
-  color: var(--primary);
-  text-align: center;
-  margin-bottom: 1rem;
-  font-weight: bold;
-}
-.sub-header{
-  font-size: 1.5rem;
-  color: var(--accent);
-  margin-top: 1rem;
-}
-
-/* Info box */
-.info-text{
-  background-color: var(--info-bg);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  border-left: 4px solid var(--primary);
+/* Dark theme colors */
+[data-theme="dark"], .dark-theme {
+    --primary-color: #818cf8;
+    --primary-light: #a5b4fc;
+    --primary-dark: #6366f1;
+    --secondary-color: #fbbf24;
+    --success-color: #34d399;
+    --danger-color: #f87171;
+    --warning-color: #fbbf24;
+    --info-color: #60a5fa;
+    --background-color: #0f172a;
+    --surface-color: #1e293b;
+    --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --border-color: #334155;
+    --card-bg: rgba(30, 41, 59, 0.8);
+    --hover-bg: rgba(129, 140, 248, 0.1);
 }
 
-/* Buttons */
-.stButton > button{
-  background-color: var(--primary);
-  color: #fff;
-  border-radius: 0.5rem;
-  border: none;
-  padding: 0.5rem 1rem;
-  transition: background-color 0.2s ease-in-out;
-}
-.stButton > button:hover{
-  background-color: var(--primary-dark);
-}
-
-/* Upload section */
-.upload-section{
-  background-color: var(--upload-bg);
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  border: 2px dashed var(--primary);
-}
-
-/* KPI card (if you use it later) */
-.metric-container{
-  background-color: var(--card-bg);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-  border-left: 4px solid var(--primary);
+/* Auto dark mode detection */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --primary-color: #818cf8;
+        --primary-light: #a5b4fc;
+        --primary-dark: #6366f1;
+        --secondary-color: #fbbf24;
+        --success-color: #34d399;
+        --danger-color: #f87171;
+        --warning-color: #fbbf24;
+        --info-color: #60a5fa;
+        --background-color: #0f172a;
+        --surface-color: #1e293b;
+        --sidebar-bg: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --card-bg: rgba(30, 41, 59, 0.8);
+        --hover-bg: rgba(129, 140, 248, 0.1);
+    }
 }
 
-/* Stable sidebar selector */
-[data-testid="stSidebar"]{
-  background-color: var(--info-bg);
+/* Global font and body styling */
+html, body, [class*="css"] {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    background-color: var(--background-color) !important;
+    color: var(--text-primary) !important;
 }
 
-/* About and export sections */
-.about-section{
-  background-color: var(--muted);
-  padding: 1rem;
-  border-radius: 0.5rem;
-  margin-top: 1rem;
-}
-.export-section{
-  background-color: var(--export-bg);
-  padding: 1.5rem;
-  border-radius: 0.5rem;
-  margin: 1rem 0;
-  border: 2px solid var(--primary);
+/* Main container background */
+.main .block-container {
+    background-color: var(--background-color) !important;
+    padding-top: 2rem !important;
+    max-width: 1200px !important;
 }
 
-/* Custom export link style (kept if you ever need <a> buttons) */
-.export-button{
-  background-color: var(--success);
-  color: #fff;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
-  margin: 4px 2px;
-  font-size: 14px;
-}
-.export-button:hover{
-  background-color: var(--success-dark);
+/* Enhanced main header with better emoji support */
+.main-header {
+    text-align: center !important;
+    color: var(--primary-color) !important;
+    margin-bottom: 2rem !important;
+    font-weight: 700 !important;
+    font-size: 2.5rem !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.025em !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
 }
 
-/* Small screens */
-@media (max-width: 480px){
-  .main-header{ font-size: 2rem; }
-  .sub-header{ font-size: 1.25rem; }
+/* Ensure emojis render properly */
+.main-header,
+.sidebar-title,
+.stSidebar h1,
+.stSidebar h2,
+.stSidebar h3 {
+    font-variant-emoji: emoji !important;
+    -webkit-font-feature-settings: "liga" on, "kern" on !important;
+    font-feature-settings: "liga" on, "kern" on !important;
+}
+
+/* Enhanced subtitle styling */
+.subtitle {
+    text-align: center !important;
+    font-size: 1.2rem !important;
+    color: var(--text-secondary) !important;
+    margin-bottom: 2rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+}
+
+/* Sidebar title with proper emoji rendering */
+.sidebar-title {
+    text-align: center !important;
+    color: var(--primary-color) !important;
+    font-weight: 700 !important;
+    font-size: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    font-variant-emoji: emoji !important;
+}
+
+/* Enhanced sidebar styling */
+.stSidebar {
+    background: var(--sidebar-bg) !important;
+    border-right: 1px solid var(--border-color) !important;
+}
+
+.stSidebar > div {
+    background: transparent !important;
+}
+
+/* Sidebar container styling */
+.css-1d391kg, 
+.css-1lcbmhc, 
+section[data-testid="stSidebar"] > div,
+.css-1cypcdb {
+    background: var(--sidebar-bg) !important;
+    padding: 1.5rem 1rem !important;
+}
+
+/* Fix all sidebar text visibility */
+.stSidebar .stMarkdown,
+.stSidebar .stMarkdown p,
+.stSidebar .stMarkdown div,
+.stSidebar .stMarkdown span,
+.stSidebar .stMarkdown h1,
+.stSidebar .stMarkdown h2,
+.stSidebar .stMarkdown h3,
+.stSidebar .stMarkdown h4,
+.stSidebar .stMarkdown h5,
+.stSidebar .stMarkdown h6,
+.stSidebar *:not(svg) {
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+}
+
+/* Enhanced radio buttons with emoji support */
+.stSidebar .stRadio {
+    background: var(--card-bg) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 1rem !important;
+    margin: 1rem 0 !important;
+    border: 1px solid var(--border-color) !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.stSidebar .stRadio label {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.stSidebar .stRadio div[role="radiogroup"] > label {
+    background: var(--card-bg) !important;
+    border: 2px solid var(--border-color) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 0.75rem 1rem !important;
+    margin: 0.25rem 0 !important;
+    transition: all 0.3s ease !important;
+    cursor: pointer !important;
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+    font-variant-emoji: emoji !important;
+    line-height: 1.5 !important;
+}
+
+.stSidebar .stRadio div[role="radiogroup"] > label:hover {
+    border-color: var(--primary-light) !important;
+    background: var(--hover-bg) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: var(--shadow-md) !important;
+    color: var(--primary-color) !important;
+}
+
+.stSidebar .stRadio div[role="radiogroup"] > label[data-checked="true"] {
+    border-color: var(--primary-color) !important;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+    color: white !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+/* Fix emoji and icon visibility */
+.stSidebar .stRadio div[role="radiogroup"] > label::before {
+    content: attr(data-icon);
+    margin-right: 0.5rem;
+    font-size: 1.1rem;
+    opacity: 1 !important;
+}
+
+/* About section with dark mode support */
+.about-section {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 1.5rem !important;
+    margin: 1.5rem 0 !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: all 0.3s ease !important;
+}
+
+.about-section:hover {
+    box-shadow: var(--shadow-md) !important;
+    transform: translateY(-2px) !important;
+}
+
+.about-section h3 {
+    color: var(--primary-color) !important;
+    font-weight: 600 !important;
+    font-size: 1.1rem !important;
+    margin-bottom: 1rem !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.about-section ul {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+.about-section li {
+    color: var(--text-secondary) !important;
+    font-size: 0.85rem !important;
+    line-height: 1.6 !important;
+    padding: 0.5rem 0 !important;
+    border-bottom: 1px solid var(--border-color) !important;
+    transition: all 0.2s ease !important;
+}
+
+.about-section li:last-child {
+    border-bottom: none !important;
+}
+
+.about-section li:hover {
+    color: var(--primary-color) !important;
+    padding-left: 0.5rem !important;
+    background: var(--hover-bg) !important;
+    border-radius: var(--radius-sm) !important;
+}
+
+/* Footer text styling */
+.footer-text {
+    text-align: center !important;
+    font-size: 0.8rem !important;
+    color: var(--text-muted) !important;
+    font-weight: 400 !important;
+    padding: 1rem !important;
+    border-top: 1px solid var(--border-color) !important;
+    margin-top: 2rem !important;
+    background: var(--card-bg) !important;
+    border-radius: var(--radius-md) !important;
+}
+
+/* Enhanced button styling with better visibility */
+.stSidebar .stButton button,
+.stButton button {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: var(--radius-md) !important;
+    padding: 0.75rem 1.5rem !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: var(--shadow-sm) !important;
+    min-height: 2.5rem !important;
+}
+
+.stSidebar .stButton button:hover,
+.stButton button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-lg) !important;
+    background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)) !important;
+}
+
+/* Special button types */
+.stButton button[kind="secondary"] {
+    background: linear-gradient(135deg, var(--text-muted), var(--text-secondary)) !important;
+    color: white !important;
+}
+
+.stButton button[kind="secondary"]:hover {
+    background: linear-gradient(135deg, var(--text-secondary), var(--text-primary)) !important;
+}
+
+/* Primary button enhancement */
+.stButton button[kind="primary"] {
+    background: linear-gradient(135deg, var(--success-color), #22d3ee) !important;
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3) !important;
+}
+
+.stButton button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #059669, var(--success-color)) !important;
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
+}
+
+/* Enhanced selectbox styling */
+.stSidebar .stSelectbox {
+    background: var(--card-bg) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 0.5rem !important;
+    border: 1px solid var(--border-color) !important;
+    transition: all 0.3s ease !important;
+}
+
+.stSidebar .stSelectbox:hover {
+    border-color: var(--primary-light) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.stSidebar .stSelectbox label {
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+}
+
+/* Enhanced multiselect styling */
+.stSidebar .stMultiSelect,
+.stMultiSelect {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md) !important;
+}
+
+.stMultiSelect label {
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+}
+
+/* Card-like containers with dark mode */
+.upload-section,
+.export-section {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 2rem !important;
+    margin: 1.5rem 0 !important;
+    backdrop-filter: blur(10px) !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: all 0.3s ease !important;
+}
+
+.upload-section:hover,
+.export-section:hover {
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* Enhanced metrics styling */
+.stMetric {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 1.5rem !important;
+    box-shadow: var(--shadow-sm) !important;
+    transition: all 0.3s ease !important;
+}
+
+.stMetric:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.stMetric label {
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+}
+
+.stMetric div {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+}
+
+/* Enhanced expander styling */
+.streamlit-expanderHeader {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+    transition: all 0.3s ease !important;
+}
+
+.streamlit-expanderHeader:hover {
+    background: var(--hover-bg) !important;
+    border-color: var(--primary-light) !important;
+}
+
+/* Enhanced tab styling */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 0.5rem !important;
+    background: transparent !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-secondary) !important;
+    font-weight: 500 !important;
+    padding: 0.75rem 1.5rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.stTabs [data-baseweb="tab"]:hover {
+    background: var(--hover-bg) !important;
+    border-color: var(--primary-light) !important;
+    color: var(--primary-color) !important;
+    transform: translateY(-1px) !important;
+}
+
+.stTabs [aria-selected="true"] {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light)) !important;
+    color: white !important;
+    border-color: var(--primary-color) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+/* Enhanced alert styling */
+.stAlert {
+    border-radius: var(--radius-md) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: var(--shadow-sm) !important;
+    backdrop-filter: blur(10px) !important;
+}
+
+.stAlert[data-baseweb="notification"] {
+    background: var(--card-bg) !important;
+}
+
+/* Enhanced dataframe styling */
+.stDataFrame {
+    border-radius: var(--radius-md) !important;
+    overflow: hidden !important;
+    box-shadow: var(--shadow-sm) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.stDataFrame table {
+    background: var(--card-bg) !important;
+}
+
+.stDataFrame th {
+    background: var(--primary-color) !important;
+    color: white !important;
+    font-weight: 600 !important;
+}
+
+.stDataFrame td {
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Fix for all emoji rendering issues */
+* {
+    font-variant-emoji: emoji !important;
+    text-rendering: optimizeLegibility !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .main .block-container {
+        padding: 1rem !important;
+    }
+    
+    .main-header {
+        font-size: 2rem !important;
+    }
+    
+    .stSidebar {
+        font-size: 0.9rem !important;
+    }
 }

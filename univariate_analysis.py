@@ -10,7 +10,7 @@ class UnivariateAnalysis:
         self.df = df
         self.selected_column = None
         self.selected_plot_type = None
-        self.rows = 5
+        self.rows = 3
 
     def display(self):
         if self.df is None or self.df.empty:

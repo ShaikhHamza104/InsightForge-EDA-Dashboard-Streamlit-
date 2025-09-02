@@ -91,25 +91,67 @@ def load_data() -> Optional[pd.DataFrame]:
                 placeholder="e.g., https://en.wikipedia.org/wiki/List_of_countries_by_GDP_(nominal)",
             )
             submitted = st.form_submit_button("Fetch Tables")
+            
         if submitted and url:
             try:
                 with st.spinner("Fetching tables from URL..."):
                     html_text = _fetch_url_text(url)
                     tables = _parse_html_tables(html_text)
+                    
                 if tables:
+                    # Store tables in session state to prevent loss on refresh
+                    st.session_state["fetched_tables"] = tables
+                    st.session_state["fetched_url"] = url
                     st.success(f"✅ Found {len(tables)} table(s) on the page.")
-                    labels = [f"Table {i+1} (Shape: {t.shape})" for i, t in enumerate(tables)]
-                    idx = st.selectbox("Select a table to analyze:", options=list(range(len(tables))), format_func=lambda i: labels[i])
-                    df = tables[idx]
-                    st.dataframe(df.head(), use_container_width=True)
                 else:
                     st.warning("⚠️ No tables found on the provided URL.")
+                    if "fetched_tables" in st.session_state:
+                        del st.session_state["fetched_tables"]
+                        
             except requests.exceptions.RequestException as e:
                 st.error(f"❌ Could not retrieve URL: {e}")
+                if "fetched_tables" in st.session_state:
+                    del st.session_state["fetched_tables"]
             except ImportError:
                 st.error("❌ Parsing HTML tables requires 'lxml' or 'bs4'. Try: pip install lxml")
+                if "fetched_tables" in st.session_state:
+                    del st.session_state["fetched_tables"]
             except Exception as e:
                 st.error(f"❌ Error parsing tables from URL: {e}")
+                if "fetched_tables" in st.session_state:
+                    del st.session_state["fetched_tables"]
+
+        # Display table selection if tables are available in session state
+        if "fetched_tables" in st.session_state and st.session_state["fetched_tables"]:
+            tables = st.session_state["fetched_tables"]
+            st.info(f"📊 Previously fetched {len(tables)} table(s) from: {st.session_state.get('fetched_url', 'Unknown URL')}")
+            
+            # Create labels for each table
+            labels = [f"Table {i+1} (Shape: {t.shape})" for i, t in enumerate(tables)]
+            
+            # Table selection with unique key
+            selected_idx = st.selectbox(
+                "Select a table to analyze:",
+                options=list(range(len(tables))),
+                format_func=lambda i: labels[i],
+                key="table_selector"
+            )
+            
+            if selected_idx is not None:
+                df = tables[selected_idx]
+                st.success(f"✅ Selected: {labels[selected_idx]}")
+                
+                # Show table preview
+                with st.expander("📋 Table Preview", expanded=True):
+                    st.dataframe(df.head(10), use_container_width=True)
+                    
+                # Clear tables button
+                if st.button("🗑️ Clear Fetched Tables", help="Clear cached tables to fetch new ones"):
+                    if "fetched_tables" in st.session_state:
+                        del st.session_state["fetched_tables"]
+                    if "fetched_url" in st.session_state:
+                        del st.session_state["fetched_url"]
+                    st.rerun()
 
     elif input_method == "From API":
         with st.form("api_form", clear_on_submit=False):
